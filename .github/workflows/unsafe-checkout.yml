@@ -1,0 +1,28 @@
+name: Unsafe PR Checkout
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout PR code (UNSAFE - pulls attacker code\!)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      
+      - name: Run tests (attacker-controlled code runs here\!)
+        run: |
+          echo "=== GITHUB_TOKEN accessible to attacker code ==="
+          echo "Token scope: $(gh auth status 2>&1 | head -3)"
+          cat package.json 2>/dev/null || echo "no package.json"
+          ls -la
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
