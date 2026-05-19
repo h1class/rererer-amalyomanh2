@@ -1,0 +1,18 @@
+name: PR Validator
+on:
+  pull_request_target:
+    types: [opened, synchronize, edited]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Check PR title
+        run: |
+          echo "Validating PR: ${{ github.event.pull_request.title }}"
+          echo "Opened by: ${{ github.event.pull_request.user.login }}"
+
