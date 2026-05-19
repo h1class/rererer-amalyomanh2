@@ -1,0 +1,19 @@
+name: CI Checks
+on:
+  pull_request_target:
+    types: [opened, synchronize, labeled]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Validate PR title format
+        run: |
+          echo "Checking PR: ${{ github.event.pull_request.title }}"
+          echo "By user: ${{ github.event.pull_request.user.login }}"
+          echo "Branch: ${{ github.event.pull_request.head.ref }}"
+
